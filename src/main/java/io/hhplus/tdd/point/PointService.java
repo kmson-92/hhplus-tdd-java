@@ -7,13 +7,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class PointService {
 
-    @Autowired
-    UserPointTable userPointTable;
+    private final UserPointTable userPointTable;
 
     @Autowired
-    PointHistoryTable pointHistoryTable;
+    public PointService(UserPointTable userPointTable) {
+        this.userPointTable = userPointTable;
+    }
 
     public UserPoint charge(long id, long amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("충전 금액을 잘못 입력하셨습니다.");
+        }
+
         return userPointTable.insertOrUpdate(id, amount);
     }
+
 }
