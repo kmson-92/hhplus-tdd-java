@@ -22,4 +22,8 @@ public class PointService {
         return userPointTable.insertOrUpdate(id, amount);
     }
 
+    public UserPoint point(long id) {
+        return userPointTable.selectById(id);
+    }
+
 }

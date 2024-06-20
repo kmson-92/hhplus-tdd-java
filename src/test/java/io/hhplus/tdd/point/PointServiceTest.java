@@ -42,8 +42,7 @@ public class PointServiceTest {
         // given
         long id = 1L;
         long amount = 1000L;
-        UserPoint userPoint = new UserPoint(id, amount, System.currentTimeMillis());
-        given(userPointTable.insertOrUpdate(id, amount)).willReturn(userPoint);
+        given(userPointTable.insertOrUpdate(id, amount)).willReturn(createUserPoint(id, amount));
 
         // when
         UserPoint resultPoint = pointService.charge(id, amount);
@@ -51,4 +50,25 @@ public class PointServiceTest {
         // then
         assertEquals(amount, resultPoint.point());
     }
+
+    @Test
+    @DisplayName("포인트 조회")
+    public void pointTest() {
+        // given
+        long id = 1L;
+        long amount = 1000L;
+        given(userPointTable.selectById(id)).willReturn(createUserPoint(id, amount));
+
+        // when
+        UserPoint resultPoint = pointService.point(id);
+
+        // then
+        assertEquals(amount, resultPoint.point());
+    }
+
+    private UserPoint createUserPoint(long id, long amount) {
+        return new UserPoint(id, amount, System.currentTimeMillis());
+    }
+
+
 }
