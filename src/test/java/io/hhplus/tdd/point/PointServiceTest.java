@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class PointServiceTest {
@@ -68,6 +69,39 @@ public class PointServiceTest {
 
     private UserPoint createUserPoint(long id, long amount) {
         return new UserPoint(id, amount, System.currentTimeMillis());
+    }
+
+    @Test
+    @DisplayName("잔고가 부족할 경우, 포인트 사용 실패")
+    public void useFailTest() {
+        // given
+        long id = 1L;
+        long amount = 0L;
+        given(userPointTable.selectById(id)).willReturn(createUserPoint(id, amount));
+
+        // then
+        assertThatThrownBy(() -> {
+            pointService.use(id, amount);
+        }).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("잔액이 부족합니다.");
+    }
+
+    @Test
+    @DisplayName("잔고가 충분할 경우, 포인트 사용")
+    public void useTest() {
+        // given
+        long id = 1L;
+        long amount = 1000L;
+        long useAmount = 500L;
+        long resultAmount = amount - useAmount;
+        given(userPointTable.selectById(id)).willReturn(createUserPoint(id, amount));
+
+        // when
+        when(userPointTable.insertOrUpdate(id, resultAmount)).thenReturn(createUserPoint(id, resultAmount));
+        UserPoint result = pointService.use(id, useAmount);
+
+        // then
+        assertEquals(resultAmount, result.point());
     }
 
 
